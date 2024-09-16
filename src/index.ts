@@ -1,3 +1,1 @@
-export function unwrap() {
-  return "foo";
-}
+export * from "./unwrap";
