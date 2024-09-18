@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsup",
     "test": "vitest",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "prepublishOnly": "pnpm run build"
   },
   "files": [
     "dist"
