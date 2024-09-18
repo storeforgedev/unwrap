@@ -111,7 +111,10 @@ export type OperationKey<T extends ClientResponse> =
 export type Operation<
   T extends ClientResponse,
   O extends OperationKey<T>,
-> = Omit<NonNullable<DataFromClientResponse<T>[O]>, "userErrors">;
+> = Omit<
+  NonNullable<DataFromClientResponse<T>[O]>,
+  "userErrors" | "customerUserErrors"
+>;
 
 /**
  * Extract potential resource keys from response.
