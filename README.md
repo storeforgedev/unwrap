@@ -56,8 +56,8 @@ const productTitle = product.title;
 
 - Zero dependencies
 - Tiny package size (~7kb)
+- Works with all Shopify GraphQL clients
 - TypeScript types inferred from responses
-- Compatible with [@shopify/api-codegen-preset](https://github.com/Shopify/shopify-app-js/tree/main/packages/api-clients/api-codegen-preset)
 - Throws an error if the response contains user errors
 - Throws an error if any of the expected data is missing
 
