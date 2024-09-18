@@ -51,7 +51,17 @@ export async function unwrap<
     throw new Error("User errors returned in shopify response.");
   }
 
+  // These user errors are returned by customer mutations like customerAccessTokenCreate.
+  if (
+    _operation.customerUserErrors &&
+    0 < _operation.customerUserErrors.length
+  ) {
+    /** @todo Include the actual errors in a readable way */
+    throw new Error("Customer user errors returned in shopify response.");
+  }
+
   delete _operation["userErrors"];
+  delete _operation["customerUserErrors"];
 
   if (!resource) return _operation;
 

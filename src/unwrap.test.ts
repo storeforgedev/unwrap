@@ -71,6 +71,17 @@ describe("fetch response", () => {
       unwrap(mockFetchResponse(MOCK_RESPONSE_USER_ERRORS), "productCreate"),
     ).rejects.toThrowError("User errors returned in shopify response.");
   });
+
+  it("throws exception when customer user errors returned in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockFetchResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
+        "customerAccessTokenCreate",
+      ),
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
+  });
 });
 
 /**
@@ -138,6 +149,17 @@ describe("object response", () => {
       unwrap(mockObjectResponse(MOCK_RESPONSE_USER_ERRORS), "productCreate"),
     ).rejects.toThrowError("User errors returned in shopify response.");
   });
+
+  it("throws exception when customer user errors returned in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockObjectResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
+        "customerAccessTokenCreate",
+      ),
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
+  });
 });
 
 /**
@@ -158,9 +180,6 @@ function mockObjectResponse<T>(data: T) {
   return { data } as ClientResponse<T>;
 }
 
-/**
- * Response type for the productCreate mutation.
- */
 type MockProductCreate = {
   productCreate?: {
     product?: { id: string; title: string } | null;
@@ -191,4 +210,20 @@ const MOCK_RESPONSE_NO_OPERATION: MockProductCreate = {};
 
 const MOCK_RESPONSE_NO_RESOURCE: MockProductCreate = {
   productCreate: {},
+};
+
+type MockCustomerAccessTokenCreate = {
+  customerAccessTokenCreate?: {
+    customerAccessToken?: { accessToken: string } | null;
+    customerUserErrors?: { code?: string; field: string[]; message: string }[];
+  } | null;
+} | null;
+
+const MOCK_RESPONSE_CUSTOMER_USER_ERRORS: MockCustomerAccessTokenCreate = {
+  customerAccessTokenCreate: {
+    customerAccessToken: null,
+    customerUserErrors: [
+      { field: ["password"], message: "Password is incorrect" },
+    ],
+  },
 };
