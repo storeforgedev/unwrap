@@ -7,6 +7,8 @@ import type {
   GraphQLResponse,
 } from "./types";
 
+import { UserErrorsException } from "./errors";
+
 /**
  * Unwrap the given operation or resource from the GraphQL response.
  * Throw if there are user errors rather than including them in the data.
@@ -47,17 +49,15 @@ export async function unwrap<
   }
 
   if (_operation.userErrors && 0 < _operation.userErrors.length) {
-    /** @todo Include the actual errors in a readable way */
-    throw new Error("User errors returned in shopify response.");
+    throw new UserErrorsException(_operation.userErrors);
   }
 
-  // These user errors are returned by customer mutations like customerAccessTokenCreate.
+  // "Customer" user errors are returned by customer mutations like customerAccessTokenCreate.
   if (
     _operation.customerUserErrors &&
     0 < _operation.customerUserErrors.length
   ) {
-    /** @todo Include the actual errors in a readable way */
-    throw new Error("Customer user errors returned in shopify response.");
+    throw new UserErrorsException(_operation.customerUserErrors);
   }
 
   delete _operation["userErrors"];

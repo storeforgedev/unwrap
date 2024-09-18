@@ -81,7 +81,7 @@ const product = await unwrap(
 );
 ```
 
-If you want to access the entire operation, omit the last parameter. Note that the operation will not contain `userErrors`, since this is implicitely handled for you within the `unwrap` method.
+If you want to access the entire operation, omit the last parameter. Note that the operation will not contain `userErrors`, since this is implicitly handled for you within the `unwrap` method.
 
 ```ts
 import { unwrap } from "@storeforge/unwrap";
@@ -92,4 +92,36 @@ const productCreate = await unwrap(
 );
 
 const product = productCreate.product;
+```
+
+## User errors
+
+When the GraphQL operation contains `userErrors` or `customerUserErrors`, a `UserErrorsException` error will be thrown. This means you don't need to worry about checking for user errors in your own code, although you should ideally catch them.
+
+```ts
+import { unwrap, UserErrorsException } from "@storeforge/unwrap";
+
+try {
+  const productCreate = await unwrap(
+    await admin.graphql(CREATE_PRODUCT_MUTATION),
+    "productCreate",
+  );
+} catch (e) {
+  if (e instanceof UserErrorsException) {
+    /**
+     * You can access a consistently formatted array of errors using the
+     * formattedUserErrors accessor. These errors always have the same
+     * shape regardless of the mutation.
+     */
+    return { errors: e.formattedUserErrors };
+
+    /**
+     * Alternatively, you can access the raw user errors, which may have an
+     * inconsistent shape depending on the mutation.
+     */
+    return { errors: e.userErrors };
+  }
+
+  throw e;
+}
 ```
