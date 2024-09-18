@@ -4,12 +4,7 @@
  */
 export type GraphQLResponse<TData = any> = {
   data?: TData;
-  errors?: {
-    message?: string;
-    response?: Response;
-    graphQLErrors?: any[];
-    networkStatusCode?: number;
-  };
+  errors?: unknown;
   headers?: Headers;
   extensions?: Record<string, any>;
 };
