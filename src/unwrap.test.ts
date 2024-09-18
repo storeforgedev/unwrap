@@ -1,6 +1,11 @@
 import { it, expect, describe } from "vitest";
 
-import type { ClientResponse } from "./types";
+import type {
+  ClientResponse,
+  ClientResponseFetch,
+  ClientResponseObject,
+  ClientResponseMerged,
+} from "./types";
 
 import { unwrap } from "./unwrap";
 
@@ -159,13 +164,93 @@ describe("object response", () => {
 });
 
 /**
+ * Some API clients, like the Storefront client packaged with Hydrogen, return the data attribute
+ * from the GraphQL response, merged with the errors object.
+ *
+ * @see https://shopify.dev/docs/storefronts/headless/hydrogen/data-fetching
+ */
+describe("merged response", () => {
+  it("returns only given operation from data", async () => {
+    const unwrapped = await unwrap(
+      mockMergedResponse(MOCK_RESPONSE_SUCCESS),
+      "productCreate",
+    );
+
+    expect(unwrapped).toEqual({
+      product: {
+        title: "Cotton T-Shirt",
+        id: "gid://shopify/Product/5070746714248",
+      },
+    });
+  });
+
+  it("returns only given resource from data", async () => {
+    const unwrapped = await unwrap(
+      mockMergedResponse(MOCK_RESPONSE_SUCCESS),
+      "productCreate",
+      "product",
+    );
+
+    expect(unwrapped).toEqual({
+      title: "Cotton T-Shirt",
+      id: "gid://shopify/Product/5070746714248",
+    });
+  });
+
+  it("throws exception when no data returned in response", async () => {
+    await expect(() =>
+      unwrap(mockMergedResponse(MOCK_RESPONSE_NO_DATA), "productCreate"),
+    ).rejects.toThrowError("No data returned in shopify response.");
+  });
+
+  /**
+   * This test is not possible for merged data, since a missing operation looks exactly
+   * the same as missing data.
+   */
+  // it("throws exception when operation does not exist in response", async () => {
+  //   await expect(() =>
+  //     unwrap(mockMergedResponse(MOCK_RESPONSE_NO_OPERATION), "productCreate"),
+  //   ).rejects.toThrowError(
+  //     `Operation "productCreate" does not exist in shopify response.`,
+  //   );
+  // });
+
+  it("throws exception when resource does not exist in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockMergedResponse(MOCK_RESPONSE_NO_RESOURCE),
+        "productCreate",
+        "product",
+      ),
+    ).rejects.toThrowError(
+      `Resource "product" does not exist in shopify response.`,
+    );
+  });
+
+  it("throws exception when user errors returned in response", async () => {
+    await expect(() =>
+      unwrap(mockMergedResponse(MOCK_RESPONSE_USER_ERRORS), "productCreate"),
+    ).rejects.toThrowError("User errors returned in shopify response.");
+  });
+
+  it("throws exception when customer user errors returned in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockMergedResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
+        "customerAccessTokenCreate",
+      ),
+    ).rejects.toThrowError("User errors returned in shopify response.");
+  });
+});
+
+/**
  * With the given data, make a mock fetch response.
  * This is how the admin API client returns data to the user.
  */
 function mockFetchResponse<T>(data: T) {
   return {
     json: () => Promise.resolve({ data }),
-  } as ClientResponse<T>;
+  } as ClientResponseFetch<T>;
 }
 
 /**
@@ -173,7 +258,15 @@ function mockFetchResponse<T>(data: T) {
  * This is how the storefront API client returns data to the user.
  */
 function mockObjectResponse<T>(data: T) {
-  return { data } as ClientResponse<T>;
+  return { data } as ClientResponseObject<T>;
+}
+
+/**
+ * With the given data, make a mock merged response.
+ * This is how the Hydrogen API client returns data to the user.
+ */
+function mockMergedResponse<T>(data: T) {
+  return { ...data, errors: [] } as ClientResponseMerged<T>;
 }
 
 type MockProductCreate = {

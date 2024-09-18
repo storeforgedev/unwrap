@@ -4,7 +4,13 @@ import type {
   ResourceKey,
   OperationKey,
   ClientResponse,
-  GraphQLResponse,
+  DataFromClientResponse,
+} from "./types";
+
+import {
+  isClientResponseFetch,
+  isClientResponseObject,
+  isClientResponseMerged,
 } from "./types";
 
 import { UserErrorsException } from "./errors";
@@ -31,16 +37,19 @@ export async function unwrap<
   operation: O,
   resource?: R,
 ): Promise<Operation<T, O> | Resource<T, O, R>> {
-  // If response is a fetch response, unwrap it first.
-  const json = (
-    "json" in response ? await response.json() : response
-  ) as GraphQLResponse;
+  // Resolve data from client response.
+  const data: DataFromClientResponse<T> = await (async () => {
+    if (isClientResponseFetch(response)) return (await response.json()).data;
+    if (isClientResponseObject(response)) return response.data;
+    if (isClientResponseMerged(response)) return response;
+    return null;
+  })();
 
-  if (!json.data) {
+  if (!data) {
     throw new Error("No data returned in shopify response.");
   }
 
-  const _operation = json.data[operation];
+  const _operation = data[operation];
 
   if (!_operation) {
     throw new Error(
@@ -65,7 +74,7 @@ export async function unwrap<
 
   if (!resource) return _operation;
 
-  const _resource = json.data[operation][resource];
+  const _resource = data[operation][resource];
 
   if (!_resource) {
     throw new Error(
