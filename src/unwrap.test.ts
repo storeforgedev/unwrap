@@ -1,7 +1,6 @@
 import { it, expect, describe } from "vitest";
 
 import type {
-  ClientResponse,
   ClientResponseFetch,
   ClientResponseObject,
   ClientResponseMerged,
