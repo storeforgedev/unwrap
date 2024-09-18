@@ -9,17 +9,20 @@ export class UserErrorsException extends Error {
   /**
    * Return an array of formatted errors.
    */
-  get formattedUserErrors() {
-    return this.userErrors.map(
-      (userError): FormattedUserError => ({
-        userError,
-        code: userError.code ?? null,
-        field: Array.isArray(userError.field)
-          ? userError.field.join(".")
-          : (userError.field ?? null),
-        message: userError.message ?? "No message could be resolved.",
-      }),
-    );
+  get formattedUserErrors(): string[] {
+    return this.userErrors.map((userError): string => {
+      const field = Array.isArray(userError.field)
+        ? userError.field.join(".")
+        : (userError.field ?? null);
+
+      return [
+        field ? `${field}:` : null,
+        userError.message ?? "Error does not have a message.",
+        userError.code ? `(${userError.code})` : null,
+      ]
+        .filter(Boolean)
+        .join(" ");
+    });
   }
 }
 
@@ -30,14 +33,4 @@ export interface UserError {
   code?: string;
   message?: string;
   field?: string | string[];
-}
-
-/**
- * User error formatted in a consistent way.
- */
-export interface FormattedUserError {
-  message: string;
-  code: string | null;
-  field: string | null;
-  userError: UserError;
 }

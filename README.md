@@ -109,15 +109,14 @@ try {
 } catch (e) {
   if (e instanceof UserErrorsException) {
     /**
-     * You can access a consistently formatted array of errors using the
-     * formattedUserErrors accessor. These errors always have the same
-     * shape regardless of the mutation.
+     * You can access a simple array of error strings using the
+     * formattedUserErrors accessor.
      */
     return { errors: e.formattedUserErrors };
 
     /**
-     * Alternatively, you can access the raw user errors, which may have an
-     * inconsistent shape depending on the mutation.
+     * Alternatively, you can access the raw user errors, which may
+     * have an inconsistent shape depending on the mutation.
      */
     return { errors: e.userErrors };
   }

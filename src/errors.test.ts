@@ -4,16 +4,15 @@ import { UserErrorsException } from "./errors";
 
 it("returns an array of formatted errors", () => {
   const error = new UserErrorsException([
-    { field: ["password"], message: "Password is incorrect." },
+    {
+      field: ["email"],
+      code: "UNIDENTIFIED_CUSTOMER",
+      message: "Unidentified customer.",
+    },
   ]);
 
   expect(error.formattedUserErrors).toEqual([
-    {
-      code: null,
-      field: "password",
-      message: "Password is incorrect.",
-      userError: { field: ["password"], message: "Password is incorrect." },
-    },
+    "email: Unidentified customer. (UNIDENTIFIED_CUSTOMER)",
   ]);
 });
 
@@ -21,11 +20,6 @@ it("return default message when cannot be resolved", () => {
   const error = new UserErrorsException([{ field: ["password"] }]);
 
   expect(error.formattedUserErrors).toEqual([
-    {
-      code: null,
-      field: "password",
-      message: "No message could be resolved.",
-      userError: { field: ["password"] },
-    },
+    "password: Error does not have a message.",
   ]);
 });
