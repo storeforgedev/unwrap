@@ -90,8 +90,14 @@ const productCreate = await unwrap(
   await admin.graphql(CREATE_PRODUCT_MUTATION),
   "productCreate",
 );
+```
 
-const product = productCreate.product;
+If you want to access the entire data object, omit both parameters. In this format, you need to check for `userErrors` yourself.
+
+```ts
+import { unwrap } from "@storeforge/unwrap";
+
+const data = await unwrap(await admin.graphql(CREATE_PRODUCT_MUTATION));
 ```
 
 ## User errors

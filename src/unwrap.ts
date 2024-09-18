@@ -19,6 +19,9 @@ import { UserErrorsException } from "./errors";
  * Unwrap the given operation or resource from the GraphQL response.
  * Throw if there are user errors rather than including them in the data.
  */
+export async function unwrap<T extends ClientResponse>(
+  response: T,
+): Promise<DataFromClientResponse<T>>;
 export async function unwrap<
   T extends ClientResponse,
   O extends OperationKey<T>,
@@ -34,20 +37,26 @@ export async function unwrap<
   R extends ResourceKey<T, O>,
 >(
   response: T,
-  operation: O,
+  operation?: O,
   resource?: R,
-): Promise<Operation<T, O> | Resource<T, O, R>> {
+): Promise<DataFromClientResponse<T> | Operation<T, O> | Resource<T, O, R>> {
   // Resolve data from client response.
   const data: DataFromClientResponse<T> = await (async () => {
     if (isClientResponseFetch(response)) return (await response.json()).data;
     if (isClientResponseObject(response)) return response.data;
-    if (isClientResponseMerged(response)) return response;
+    if (isClientResponseMerged(response)) {
+      // @ts-expect-error
+      const { errors, ...restData } = response ?? {};
+      return 0 < Object.keys(restData).length ? restData : null;
+    }
     return null;
   })();
 
   if (!data) {
     throw new Error("No data returned in shopify response.");
   }
+
+  if (!operation) return data;
 
   const _operation = data[operation];
 
@@ -69,12 +78,11 @@ export async function unwrap<
     throw new UserErrorsException(_operation.customerUserErrors);
   }
 
-  delete _operation["userErrors"];
-  delete _operation["customerUserErrors"];
+  const { userErrors, customerUserErrors, ...rest } = _operation;
 
-  if (!resource) return _operation;
+  if (!resource) return rest;
 
-  const _resource = data[operation][resource];
+  const _resource = rest[resource];
 
   if (!_resource) {
     throw new Error(

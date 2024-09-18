@@ -17,6 +17,20 @@ import { unwrap } from "./unwrap";
  * @see https://shopify.dev/docs/api/shopify-app-remix/v3/guide-admin#graphql-api
  */
 describe("fetch response", () => {
+  it("returns data", async () => {
+    const unwrapped = await unwrap(mockFetchResponse(MOCK_RESPONSE_SUCCESS));
+
+    expect(unwrapped).toEqual({
+      productCreate: {
+        product: {
+          title: "Cotton T-Shirt",
+          id: "gid://shopify/Product/5070746714248",
+        },
+        userErrors: [],
+      },
+    });
+  });
+
   it("returns only given operation from data", async () => {
     const unwrapped = await unwrap(
       mockFetchResponse(MOCK_RESPONSE_SUCCESS),
@@ -93,6 +107,20 @@ describe("fetch response", () => {
  * @see https://github.com/Shopify/shopify-app-js/tree/main/packages/api-clients/storefront-api-client
  */
 describe("object response", () => {
+  it("returns data", async () => {
+    const unwrapped = await unwrap(mockObjectResponse(MOCK_RESPONSE_SUCCESS));
+
+    expect(unwrapped).toEqual({
+      productCreate: {
+        product: {
+          title: "Cotton T-Shirt",
+          id: "gid://shopify/Product/5070746714248",
+        },
+        userErrors: [],
+      },
+    });
+  });
+
   it("returns only given operation from data", async () => {
     const unwrapped = await unwrap(
       mockObjectResponse(MOCK_RESPONSE_SUCCESS),
@@ -169,6 +197,20 @@ describe("object response", () => {
  * @see https://shopify.dev/docs/storefronts/headless/hydrogen/data-fetching
  */
 describe("merged response", () => {
+  it("returns data", async () => {
+    const unwrapped = await unwrap(mockMergedResponse(MOCK_RESPONSE_SUCCESS));
+
+    expect(unwrapped).toEqual({
+      productCreate: {
+        product: {
+          title: "Cotton T-Shirt",
+          id: "gid://shopify/Product/5070746714248",
+        },
+        userErrors: [],
+      },
+    });
+  });
+
   it("returns only given operation from data", async () => {
     const unwrapped = await unwrap(
       mockMergedResponse(MOCK_RESPONSE_SUCCESS),
