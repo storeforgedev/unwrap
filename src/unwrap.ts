@@ -3,6 +3,7 @@ import type {
   Operation,
   ResourceKey,
   OperationKey,
+  ClientResponse,
   GraphQLResponse,
 } from "./types";
 
@@ -11,16 +12,16 @@ import type {
  * Throw if there are user errors rather than including them in the data.
  */
 export async function unwrap<
-  T extends GraphQLResponse,
+  T extends ClientResponse,
   O extends OperationKey<T>,
 >(response: T, operation: O): Promise<Operation<T, O>>;
 export async function unwrap<
-  T extends GraphQLResponse,
+  T extends ClientResponse,
   O extends OperationKey<T>,
   R extends ResourceKey<T, O>,
 >(response: T, operation: O, resource: R): Promise<Resource<T, O, R>>;
 export async function unwrap<
-  T extends GraphQLResponse,
+  T extends ClientResponse,
   O extends OperationKey<T>,
   R extends ResourceKey<T, O>,
 >(
@@ -28,7 +29,10 @@ export async function unwrap<
   operation: O,
   resource?: R,
 ): Promise<Operation<T, O> | Resource<T, O, R>> {
-  const json = await response.json();
+  // If response is a fetch response, unwrap it first.
+  const json = (
+    "json" in response ? await response.json() : response
+  ) as GraphQLResponse;
 
   if (!json.data) {
     throw new Error("No data returned in shopify response.");

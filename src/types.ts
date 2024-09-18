@@ -1,15 +1,8 @@
 /**
- * Fetch response with a generic data type.
- */
-export type ResponseWithType<T = any> = Omit<Response, "json"> & {
-  json: () => Promise<T>;
-};
-
-/**
- * Fetch response with GraphQL shape.
+ * GraphQL response object expected for all requests.
  * @see https://github.com/Shopify/shopify-app-js/blob/main/packages/api-clients/graphql-client/src/graphql-client/types.ts#L36
  */
-export type GraphQLResponse<TData = any> = ResponseWithType<{
+export type GraphQLResponse<TData = any> = {
   data?: TData;
   errors?: {
     message?: string;
@@ -19,34 +12,52 @@ export type GraphQLResponse<TData = any> = ResponseWithType<{
   };
   headers?: Headers;
   extensions?: Record<string, any>;
-}>;
+};
 
 /**
- * Given a GraphQL response, extract the data attribute.
+ * Fetch response with a generic data type.
  */
-export type DataFromGraphQLResponse<T extends GraphQLResponse> = NonNullable<
-  Awaited<ReturnType<T["json"]>>["data"]
->;
+export type FetchResponseWithType<T = any> = Omit<Response, "json"> & {
+  json: () => Promise<T>;
+};
+
+/**
+ * A client response could be just the GraphQL response object, or it could be a fetch
+ * response containing that object, depending on the client.
+ */
+export type ClientResponse<TData = any> =
+  | GraphQLResponse<TData>
+  | FetchResponseWithType<GraphQLResponse<TData>>;
+
+/**
+ * Given a client response, extract the data attribute.
+ */
+export type DataFromClientResponse<T extends ClientResponse> =
+  T extends FetchResponseWithType<GraphQLResponse>
+    ? NonNullable<Awaited<ReturnType<T["json"]>>["data"]>
+    : T extends GraphQLResponse
+      ? NonNullable<T["data"]>
+      : never;
 
 /**
  * Extract potential operation keys from response.
  */
-export type OperationKey<T extends GraphQLResponse> =
-  keyof DataFromGraphQLResponse<T>;
+export type OperationKey<T extends ClientResponse> =
+  keyof DataFromClientResponse<T>;
 
 /**
  * Extract operation with given key from response.
  */
 export type Operation<
-  T extends GraphQLResponse,
+  T extends ClientResponse,
   O extends OperationKey<T>,
-> = Omit<NonNullable<DataFromGraphQLResponse<T>[O]>, "userErrors">;
+> = Omit<NonNullable<DataFromClientResponse<T>[O]>, "userErrors">;
 
 /**
  * Extract potential resource keys from response.
  */
 export type ResourceKey<
-  T extends GraphQLResponse,
+  T extends ClientResponse,
   O extends OperationKey<T>,
 > = keyof Operation<T, O>;
 
@@ -54,7 +65,7 @@ export type ResourceKey<
  * Extract resource with given key from response.
  */
 export type Resource<
-  T extends GraphQLResponse,
+  T extends ClientResponse,
   O extends OperationKey<T>,
   R extends ResourceKey<T, O>,
 > = NonNullable<Operation<T, O>[R]>;

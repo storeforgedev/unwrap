@@ -1,15 +1,14 @@
 import { it, expect, describe } from "vitest";
 
-import type { GraphQLResponse } from "./types";
+import type { ClientResponse } from "./types";
 
 import { unwrap } from "./unwrap";
 
 /**
  * Some API clients, like the Admin API client returned from the @shopify/shopify-app-remix
- * package return fetch responses rather than just the data.
+ * package return fetch responses rather than just the GraphQL response object.
  *
- * These types of responses need to be unwrapped in a different way to other clients which
- * return just the data object.
+ * These types of responses need to be unwrapped first.
  *
  * @see https://shopify.dev/docs/api/shopify-app-remix/v3/guide-admin#graphql-api
  */
@@ -75,13 +74,88 @@ describe("fetch response", () => {
 });
 
 /**
+ * Some API clients, like the @shopify/storefront-api-client package implicitly unwrap the
+ * fetch response and directly return the GraphQL response object.
+ *
+ * @see https://github.com/Shopify/shopify-app-js/tree/main/packages/api-clients/storefront-api-client
+ */
+describe("object response", () => {
+  it("returns only given operation from data", async () => {
+    const unwrapped = await unwrap(
+      mockObjectResponse(MOCK_RESPONSE_SUCCESS),
+      "productCreate",
+    );
+
+    expect(unwrapped).toEqual({
+      product: {
+        title: "Cotton T-Shirt",
+        id: "gid://shopify/Product/5070746714248",
+      },
+    });
+  });
+
+  it("returns only given resource from data", async () => {
+    const unwrapped = await unwrap(
+      mockObjectResponse(MOCK_RESPONSE_SUCCESS),
+      "productCreate",
+      "product",
+    );
+
+    expect(unwrapped).toEqual({
+      title: "Cotton T-Shirt",
+      id: "gid://shopify/Product/5070746714248",
+    });
+  });
+
+  it("throws exception when no data returned in response", async () => {
+    await expect(() =>
+      unwrap(mockObjectResponse(MOCK_RESPONSE_NO_DATA), "productCreate"),
+    ).rejects.toThrowError("No data returned in shopify response.");
+  });
+
+  it("throws exception when operation does not exist in response", async () => {
+    await expect(() =>
+      unwrap(mockObjectResponse(MOCK_RESPONSE_NO_OPERATION), "productCreate"),
+    ).rejects.toThrowError(
+      `Operation "productCreate" does not exist in shopify response.`,
+    );
+  });
+
+  it("throws exception when resource does not exist in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockObjectResponse(MOCK_RESPONSE_NO_RESOURCE),
+        "productCreate",
+        "product",
+      ),
+    ).rejects.toThrowError(
+      `Resource "product" does not exist in shopify response.`,
+    );
+  });
+
+  it("throws exception when user errors returned in response", async () => {
+    await expect(() =>
+      unwrap(mockObjectResponse(MOCK_RESPONSE_USER_ERRORS), "productCreate"),
+    ).rejects.toThrowError("User errors returned in shopify response.");
+  });
+});
+
+/**
  * With the given data, make a mock fetch response.
  * This is how the admin API client returns data to the user.
  */
-function mockFetchResponse<T>(data: T): GraphQLResponse<T> {
+function mockFetchResponse<T>(data: T) {
   return {
     json: () => Promise.resolve({ data }),
-  } as GraphQLResponse<T>;
+  } as ClientResponse<T>;
+}
+
+/**
+ * With the given data, make a mock fetch response.
+ * This is how the storefront API client returns data to the user.
+ */
+function mockObjectResponse<T>(data: T) {
+  return { data } as ClientResponse<T>;
 }
 
 /**
