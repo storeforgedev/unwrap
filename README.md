@@ -45,7 +45,7 @@ import { unwrap } from "@storeforge/unwrap";
 const product = await unwrap(
   await admin.graphql(CREATE_PRODUCT_MUTATION),
   "productCreate", // Operation
-  "product", // Optional resource
+  "product", // Resource
 );
 
 // Guaranteed to exist.
@@ -54,12 +54,12 @@ const productTitle = product.title;
 
 ## Features
 
-- Zero dependencies
-- Tiny package size (~7kb)
-- Works with all Shopify GraphQL clients
-- TypeScript types inferred from responses
-- Throws an error if the response contains user errors
-- Throws an error if any of the expected data is missing
+- 🪶 Zero dependencies
+- 📦 Tiny package size (~7kb)
+- ✔️ Works with all Shopify GraphQL clients
+- 🧩 TypeScript types inferred from responses
+- 🪃 Throws an error if the response contains user errors
+- 🪃 Throws an error if any of the expected data is missing
 
 ## Install
 
