@@ -1,5 +1,3 @@
-import type { ClientResponse } from "@shopify/graphql-client";
-
 /**
  * Fetch response with a generic data type.
  */
@@ -9,10 +7,19 @@ export type ResponseWithType<T = any> = Omit<Response, "json"> & {
 
 /**
  * Fetch response with GraphQL shape.
+ * @see https://github.com/Shopify/shopify-app-js/blob/main/packages/api-clients/graphql-client/src/graphql-client/types.ts#L36
  */
-export type GraphQLResponse<TData = any> = ResponseWithType<
-  ClientResponse<TData>
->;
+export type GraphQLResponse<TData = any> = ResponseWithType<{
+  data?: TData;
+  errors?: {
+    message?: string;
+    response?: Response;
+    graphQLErrors?: any[];
+    networkStatusCode?: number;
+  };
+  headers?: Headers;
+  extensions?: Record<string, any>;
+}>;
 
 /**
  * Given a GraphQL response, extract the data attribute.

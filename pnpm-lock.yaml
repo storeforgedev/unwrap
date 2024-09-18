@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@shopify/graphql-client':
-        specifier: ^1.2.0
-        version: 1.2.0
     devDependencies:
       '@tsconfig/strictest':
         specifier: ^2.0.5
@@ -429,9 +425,6 @@ packages:
     resolution: {integrity: sha512-fOvu7PCQjAj4eWDEuD8Xz5gpzFqXzGlxHZozHP4b9Jxv9APtdxL6STqztDzMLuRXEc4UpXGGhx029Xgm91QBeA==}
     cpu: [x64]
     os: [win32]
-
-  '@shopify/graphql-client@1.2.0':
-    resolution: {integrity: sha512-xHboSDWetnprv6nxhw3N9gjx1vTFZPVXTD5WH6IEQNPjf4M+S05R4nHruX0iAsfKObFDbxwBXZldao/XrRHX9Q==}
 
   '@tsconfig/strictest@2.0.5':
     resolution: {integrity: sha512-ec4tjL2Rr0pkZ5hww65c+EEPYwxOi4Ryv+0MtjeaSQRJyq322Q27eOQiFbuNgw2hpL4hB1/W/HBGk3VKS43osg==}
@@ -1279,8 +1272,6 @@ snapshots:
 
   '@rollup/rollup-win32-x64-msvc@4.21.3':
     optional: true
-
-  '@shopify/graphql-client@1.2.0': {}
 
   '@tsconfig/strictest@2.0.5': {}
 
