@@ -2,7 +2,7 @@
  * Thrown when user errors are encountered in GraphQL response.
  */
 export class UserErrorsException extends Error {
-  constructor(readonly errors: UserError[]) {
+  constructor(readonly userErrors: UserError[]) {
     super("User errors returned in shopify response.");
   }
 
@@ -10,7 +10,7 @@ export class UserErrorsException extends Error {
    * Return an array of formatted errors.
    */
   get formattedUserErrors() {
-    return this.errors.map(
+    return this.userErrors.map(
       (userError): FormattedUserError => ({
         userError,
         code: userError.code ?? null,
