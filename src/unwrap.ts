@@ -13,7 +13,7 @@ import {
   isClientResponseMerged,
 } from "./types";
 
-import { UserErrorsException, CustomerUserErrorsException } from "./errors";
+import { CoreUserErrorsException, CustomerUserErrorsException } from "./errors";
 
 /**
  * Unwrap the given operation or resource from the GraphQL response.
@@ -76,7 +76,7 @@ export async function unwrap<
 
   // User errors are returned by all mutations.
   if (_operation.userErrors && 0 < _operation.userErrors.length) {
-    throw new UserErrorsException(_operation.userErrors);
+    throw new CoreUserErrorsException(_operation.userErrors);
   }
 
   const { userErrors, customerUserErrors, ...rest } = _operation;

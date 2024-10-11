@@ -104,6 +104,8 @@ const data = await unwrap(await admin.graphql(CREATE_PRODUCT_MUTATION));
 
 When the GraphQL operation contains `userErrors` or `customerUserErrors`, a `UserErrorsException` error will be thrown. This means you don't need to worry about checking for user errors in your own code, although you should ideally catch them.
 
+If you need to differentiate the error types, a `CoreUserErrorsException` is thrown for `userErrors`, while a `CustomerUserErrorsException` is thrown for `customerUserErrors`. However, they both extend `UserErrorsException` and have the same properties.
+
 ```ts
 import { unwrap, UserErrorsException } from "@storeforge/unwrap";
 

@@ -10,7 +10,7 @@ export interface UserError {
 /**
  * Error exception from which others extend.
  */
-abstract class BaseErrorsException extends Error {
+export abstract class UserErrorsException extends Error {
   constructor(
     message: string,
     readonly userErrors: UserError[],
@@ -41,7 +41,7 @@ abstract class BaseErrorsException extends Error {
 /**
  * Thrown when user errors are encountered in GraphQL response.
  */
-export class UserErrorsException extends BaseErrorsException {
+export class CoreUserErrorsException extends UserErrorsException {
   constructor(userErrors: UserError[]) {
     super("User errors returned in shopify response.", userErrors);
   }
@@ -50,7 +50,7 @@ export class UserErrorsException extends BaseErrorsException {
 /**
  * Thrown when customer user errors are encountered in GraphQL response.
  */
-export class CustomerUserErrorsException extends BaseErrorsException {
+export class CustomerUserErrorsException extends UserErrorsException {
   constructor(userErrors: UserError[]) {
     super("Customer user errors returned in shopify response.", userErrors);
   }

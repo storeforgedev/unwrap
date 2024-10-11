@@ -1,9 +1,9 @@
 import { it, expect } from "vitest";
 
-import { UserErrorsException, CustomerUserErrorsException } from "./errors";
+import { CoreUserErrorsException, CustomerUserErrorsException } from "./errors";
 
 it("returns an array of formatted errors", () => {
-  const error = new UserErrorsException([
+  const error = new CoreUserErrorsException([
     {
       field: ["email"],
       code: "UNIDENTIFIED_CUSTOMER",
@@ -17,7 +17,7 @@ it("returns an array of formatted errors", () => {
 });
 
 it("return default message when cannot be resolved", () => {
-  const error = new UserErrorsException([{ field: ["password"] }]);
+  const error = new CoreUserErrorsException([{ field: ["password"] }]);
 
   expect(error.formattedUserErrors).toEqual([
     "password: Error does not have a message.",
@@ -25,7 +25,7 @@ it("return default message when cannot be resolved", () => {
 });
 
 it("sets message for user errors exception", () => {
-  const error = new UserErrorsException([{ field: ["password"] }]);
+  const error = new CoreUserErrorsException([{ field: ["password"] }]);
   expect(error.message).toBe("User errors returned in shopify response.");
 });
 
