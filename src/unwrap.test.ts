@@ -96,7 +96,9 @@ describe("fetch response", () => {
         mockFetchResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
         "customerAccessTokenCreate",
       ),
-    ).rejects.toThrowError("User errors returned in shopify response.");
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
   });
 });
 
@@ -186,7 +188,9 @@ describe("object response", () => {
         mockObjectResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
         "customerAccessTokenCreate",
       ),
-    ).rejects.toThrowError("User errors returned in shopify response.");
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
   });
 });
 
@@ -280,7 +284,9 @@ describe("merged response", () => {
         mockMergedResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
         "customerAccessTokenCreate",
       ),
-    ).rejects.toThrowError("User errors returned in shopify response.");
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
   });
 });
 

@@ -1,9 +1,21 @@
 /**
- * Thrown when user errors are encountered in GraphQL response.
+ * Combined type for the various user errors returned by Shopify.
  */
-export class UserErrorsException extends Error {
-  constructor(readonly userErrors: UserError[]) {
-    super("User errors returned in shopify response.");
+export interface UserError {
+  code?: string;
+  message?: string;
+  field?: string | string[];
+}
+
+/**
+ * Error exception from which others extend.
+ */
+abstract class BaseErrorsException extends Error {
+  constructor(
+    message: string,
+    readonly userErrors: UserError[],
+  ) {
+    super(message);
   }
 
   /**
@@ -27,10 +39,19 @@ export class UserErrorsException extends Error {
 }
 
 /**
- * Combined type for the various user errors returned by Shopify.
+ * Thrown when user errors are encountered in GraphQL response.
  */
-export interface UserError {
-  code?: string;
-  message?: string;
-  field?: string | string[];
+export class UserErrorsException extends BaseErrorsException {
+  constructor(userErrors: UserError[]) {
+    super("User errors returned in shopify response.", userErrors);
+  }
+}
+
+/**
+ * Thrown when customer user errors are encountered in GraphQL response.
+ */
+export class CustomerUserErrorsException extends BaseErrorsException {
+  constructor(userErrors: UserError[]) {
+    super("Customer user errors returned in shopify response.", userErrors);
+  }
 }
