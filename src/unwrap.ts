@@ -66,16 +66,17 @@ export async function unwrap<
     );
   }
 
-  if (_operation.userErrors && 0 < _operation.userErrors.length) {
-    throw new UserErrorsException(_operation.userErrors);
-  }
-
   // "Customer" user errors are returned by customer mutations like customerAccessTokenCreate.
   if (
     _operation.customerUserErrors &&
     0 < _operation.customerUserErrors.length
   ) {
     throw new CustomerUserErrorsException(_operation.customerUserErrors);
+  }
+
+  // User errors are returned by all mutations.
+  if (_operation.userErrors && 0 < _operation.userErrors.length) {
+    throw new UserErrorsException(_operation.userErrors);
   }
 
   const { userErrors, customerUserErrors, ...rest } = _operation;

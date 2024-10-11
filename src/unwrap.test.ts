@@ -100,6 +100,22 @@ describe("fetch response", () => {
       "Customer user errors returned in shopify response.",
     );
   });
+
+  /**
+   * Some mutations, like customerRecover will return customer user errors at the same time as user errors, even though
+   * both errors relate to the same thing. In this scenario, we want to throw an error containing the customer user
+   * errors as these are generally more detailed.
+   */
+  it("throws CustomerUserErrorsException when both customer user errors and user errors are present", async () => {
+    await expect(() =>
+      unwrap(
+        mockFetchResponse(MOCK_RESPONSE_BOTH_ERRORS),
+        "customerAccessTokenCreate",
+      ),
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
+  });
 });
 
 /**
@@ -186,6 +202,22 @@ describe("object response", () => {
     await expect(() =>
       unwrap(
         mockObjectResponse(MOCK_RESPONSE_CUSTOMER_USER_ERRORS),
+        "customerAccessTokenCreate",
+      ),
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
+  });
+
+  /**
+   * Some mutations, like customerRecover will return customer user errors at the same time as user errors, even though
+   * both errors relate to the same thing. In this scenario, we want to throw an error containing the customer user
+   * errors as these are generally more detailed.
+   */
+  it("throws CustomerUserErrorsException when both customer user errors and user errors are present", async () => {
+    await expect(() =>
+      unwrap(
+        mockFetchResponse(MOCK_RESPONSE_BOTH_ERRORS),
         "customerAccessTokenCreate",
       ),
     ).rejects.toThrowError(
@@ -288,6 +320,22 @@ describe("merged response", () => {
       "Customer user errors returned in shopify response.",
     );
   });
+
+  /**
+   * Some mutations, like customerRecover will return customer user errors at the same time as user errors, even though
+   * both errors relate to the same thing. In this scenario, we want to throw an error containing the customer user
+   * errors as these are generally more detailed.
+   */
+  it("throws CustomerUserErrorsException when both customer user errors and user errors are present", async () => {
+    await expect(() =>
+      unwrap(
+        mockFetchResponse(MOCK_RESPONSE_BOTH_ERRORS),
+        "customerAccessTokenCreate",
+      ),
+    ).rejects.toThrowError(
+      "Customer user errors returned in shopify response.",
+    );
+  });
 });
 
 /**
@@ -351,6 +399,7 @@ const MOCK_RESPONSE_NO_RESOURCE: MockProductCreate = {
 type MockCustomerAccessTokenCreate = {
   customerAccessTokenCreate?: {
     customerAccessToken?: { accessToken: string } | null;
+    userErrors?: { field: string[]; message: string }[];
     customerUserErrors?: { code?: string; field: string[]; message: string }[];
   } | null;
 } | null;
@@ -358,6 +407,17 @@ type MockCustomerAccessTokenCreate = {
 const MOCK_RESPONSE_CUSTOMER_USER_ERRORS: MockCustomerAccessTokenCreate = {
   customerAccessTokenCreate: {
     customerAccessToken: null,
+    userErrors: [],
+    customerUserErrors: [
+      { field: ["password"], message: "Password is incorrect" },
+    ],
+  },
+};
+
+const MOCK_RESPONSE_BOTH_ERRORS: MockCustomerAccessTokenCreate = {
+  customerAccessTokenCreate: {
+    customerAccessToken: null,
+    userErrors: [{ field: ["password"], message: "Password is incorrect" }],
     customerUserErrors: [
       { field: ["password"], message: "Password is incorrect" },
     ],
