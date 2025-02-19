@@ -1,6 +1,6 @@
 {
   "name": "@storeforge/unwrap",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Tiny utility for \"unwrapping\" Shopify GraphQL responses and handling user errors",
   "license": "MIT",
   "repository": "storeforgedev/unwrap",
