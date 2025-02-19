@@ -1,6 +1,7 @@
 import { it, expect, describe } from "vitest";
 
 import type {
+  GraphQLError,
   ClientResponseFetch,
   ClientResponseObject,
   ClientResponseMerged,
@@ -56,6 +57,22 @@ describe("fetch response", () => {
       title: "Cotton T-Shirt",
       id: "gid://shopify/Product/5070746714248",
     });
+  });
+
+  it("throws exception when graphql errors returned in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockFetchResponse(null, [
+          {
+            message:
+              "Creating Customer Limit exceeded. Please try again later.",
+          },
+        ]),
+        "productCreate",
+      ),
+    ).rejects.toThrowError(
+      "Creating Customer Limit exceeded. Please try again later.",
+    );
   });
 
   it("throws exception when no data returned in response", async () => {
@@ -166,6 +183,22 @@ describe("object response", () => {
     });
   });
 
+  it("throws exception when graphql errors returned in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockObjectResponse(null, [
+          {
+            message:
+              "Creating Customer Limit exceeded. Please try again later.",
+          },
+        ]),
+        "productCreate",
+      ),
+    ).rejects.toThrowError(
+      "Creating Customer Limit exceeded. Please try again later.",
+    );
+  });
+
   it("throws exception when no data returned in response", async () => {
     await expect(() =>
       unwrap(mockObjectResponse(MOCK_RESPONSE_NO_DATA), "productCreate"),
@@ -274,6 +307,22 @@ describe("merged response", () => {
     });
   });
 
+  it("throws exception when graphql errors returned in response", async () => {
+    await expect(() =>
+      unwrap(
+        mockMergedResponse(null, [
+          {
+            message:
+              "Creating Customer Limit exceeded. Please try again later.",
+          },
+        ]),
+        "productCreate",
+      ),
+    ).rejects.toThrowError(
+      "Creating Customer Limit exceeded. Please try again later.",
+    );
+  });
+
   it("throws exception when no data returned in response", async () => {
     await expect(() =>
       unwrap(mockMergedResponse(MOCK_RESPONSE_NO_DATA), "productCreate"),
@@ -342,26 +391,26 @@ describe("merged response", () => {
  * With the given data, make a mock fetch response.
  * This is how the admin API client returns data to the user.
  */
-function mockFetchResponse<T>(data: T) {
+function mockFetchResponse<T>(data: T, errors?: GraphQLError[]) {
   return {
-    json: () => Promise.resolve({ data }),
+    json: () => Promise.resolve({ data, errors }),
   } as ClientResponseFetch<T>;
 }
 
 /**
- * With the given data, make a mock fetch response.
+ * With the given data, make a mock boject response.
  * This is how the storefront API client returns data to the user.
  */
-function mockObjectResponse<T>(data: T) {
-  return { data } as ClientResponseObject<T>;
+function mockObjectResponse<T>(data: T, errors?: GraphQLError[]) {
+  return { data, errors } as ClientResponseObject<T>;
 }
 
 /**
  * With the given data, make a mock merged response.
  * This is how the Hydrogen API client returns data to the user.
  */
-function mockMergedResponse<T>(data: T) {
-  return { ...data, errors: [] } as ClientResponseMerged<T>;
+function mockMergedResponse<T>(data: T, errors?: GraphQLError[]) {
+  return { ...data, errors: errors ?? [] } as ClientResponseMerged<T>;
 }
 
 type MockProductCreate = {

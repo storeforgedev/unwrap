@@ -100,9 +100,33 @@ import { unwrap } from "@storeforge/unwrap";
 const data = await unwrap(await admin.graphql(CREATE_PRODUCT_MUTATION));
 ```
 
+## GraphQL errrors
+
+When a GraphQL operation returns GraphQL errors, a `GraphQLErrorsException` error will be thrown.
+
+The message for the error will be set to the message of the first GraphQL error if possible.
+
+```ts
+import { unwrap, GraphQLErrorsException } from "@storeforge/unwrap";
+
+try {
+  const productCreate = await unwrap(
+    await admin.graphql(CREATE_PRODUCT_MUTATION),
+    "productCreate",
+  );
+} catch (e) {
+  if (e instanceof GraphQLErrorsException) {
+    // You can access the raw GraphQL errors using the errors attribute if needed.
+    return { errors: e.errors };
+  }
+
+  throw e;
+}
+```
+
 ## User errors
 
-When the GraphQL operation contains `userErrors` or `customerUserErrors`, a `UserErrorsException` error will be thrown. This means you don't need to worry about checking for user errors in your own code, although you should ideally catch them.
+When a GraphQL operation returns `userErrors` or `customerUserErrors`, a `UserErrorsException` error will be thrown. This means you don't need to worry about checking for user errors in your own code, although you should ideally catch them.
 
 If you need to differentiate the error types, a `CoreUserErrorsException` is thrown for `userErrors`, while a `CustomerUserErrorsException` is thrown for `customerUserErrors`. However, they both extend `UserErrorsException` and have the same properties.
 

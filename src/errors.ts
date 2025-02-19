@@ -1,14 +1,20 @@
+import type { UserError, GraphQLError } from "./types";
+
 /**
- * Combined type for the various user errors returned by Shopify.
+ * Exception thrown when a GraphQL error occurs.
+ * The exception message will be extracted from the first GraphQL error if possible.
  */
-export interface UserError {
-  code?: string;
-  message?: string;
-  field?: string | string[];
+export class GraphQLErrorsException extends Error {
+  constructor(readonly errors: GraphQLError[]) {
+    const message =
+      errors[0]?.message ?? "Shopify returned one or more GraphQL errors.";
+
+    super(message);
+  }
 }
 
 /**
- * Error exception from which others extend.
+ * User error exception from which others extend.
  */
 export abstract class UserErrorsException extends Error {
   constructor(

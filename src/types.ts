@@ -4,10 +4,28 @@
  */
 export type GraphQLResponse<TData = any> = {
   data?: TData;
-  errors?: unknown;
   headers?: Headers;
+  errors?: GraphQLError[];
   extensions?: Record<string, any>;
 };
+
+/**
+ * GraphQL error object.
+ * This is a best effort type as various Shopify clients might mess with this.
+ */
+export type GraphQLError = {
+  path?: string[];
+  message?: string;
+};
+
+/**
+ * Combined type for the various user errors returned by Shopify.
+ */
+export interface UserError {
+  code?: string;
+  message?: string;
+  field?: string | string[];
+}
 
 /**
  * Some API clients, like the Admin API client returned from the @shopify/shopify-app-remix
@@ -62,12 +80,7 @@ export type ClientResponseMerged<TData = any> = GraphQLResponse<TData>["data"] &
 export function isClientResponseMerged(
   clientResponse: ClientResponse,
 ): clientResponse is ClientResponseMerged {
-  return (
-    !("data" in clientResponse) &&
-    !("json" in clientResponse) &&
-    // Has at least one key which is not "errors".
-    0 < Object.keys(clientResponse).filter((key) => "errors" !== key).length
-  );
+  return !("data" in clientResponse) && !("json" in clientResponse);
 }
 
 /**

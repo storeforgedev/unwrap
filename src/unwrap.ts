@@ -3,6 +3,7 @@ import type {
   Operation,
   ResourceKey,
   OperationKey,
+  GraphQLError,
   ClientResponse,
   DataFromClientResponse,
 } from "./types";
@@ -13,7 +14,11 @@ import {
   isClientResponseMerged,
 } from "./types";
 
-import { CoreUserErrorsException, CustomerUserErrorsException } from "./errors";
+import {
+  GraphQLErrorsException,
+  CoreUserErrorsException,
+  CustomerUserErrorsException,
+} from "./errors";
 
 /**
  * Unwrap the given operation or resource from the GraphQL response.
@@ -40,17 +45,43 @@ export async function unwrap<
   operation?: O,
   resource?: R,
 ): Promise<DataFromClientResponse<T> | Operation<T, O> | Resource<T, O, R>> {
-  // Resolve data from client response.
-  const data: DataFromClientResponse<T> = await (async () => {
-    if (isClientResponseFetch(response)) return (await response.json()).data;
-    if (isClientResponseObject(response)) return response.data;
+  // Resolve data and errors from client response.
+  const {
+    data,
+    errors,
+  }: {
+    errors?: GraphQLError[] | null | undefined;
+    data?: DataFromClientResponse<T> | null | undefined;
+  } = await (async () => {
+    if (isClientResponseFetch(response)) {
+      const { data, errors } = await response.json();
+      return { data, errors };
+    }
+
+    if (isClientResponseObject(response)) {
+      const { data, errors } = response;
+      return { data, errors };
+    }
+
     if (isClientResponseMerged(response)) {
       // @ts-expect-error
       const { errors, ...restData } = response ?? {};
-      return 0 < Object.keys(restData).length ? restData : null;
+
+      return {
+        errors,
+        data:
+          0 < Object.keys(restData).length
+            ? (restData as DataFromClientResponse<T>)
+            : null,
+      };
     }
-    return null;
+
+    return {};
   })();
+
+  if (errors && 0 < errors.length) {
+    throw new GraphQLErrorsException(errors);
+  }
 
   if (!data) {
     throw new Error("No data returned in shopify response.");
